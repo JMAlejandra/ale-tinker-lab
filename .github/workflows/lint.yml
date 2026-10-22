@@ -1,0 +1,17 @@
+name: Lint
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    env:
+      # `next lint` loads next.config.js, which imports src/env.js and
+      # validates DATABASE_URL — no database is available in this job, and
+      # linting doesn't need one. See next.config.js and build.yml.
+      SKIP_ENV_VALIDATION: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: npm run lint

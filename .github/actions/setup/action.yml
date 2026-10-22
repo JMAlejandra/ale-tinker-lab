@@ -1,0 +1,19 @@
+name: Setup
+description: Set up Node and install dependencies with npm ci
+
+# Note: this intentionally does NOT check out the repo. A local composite
+# action can only be resolved after the calling workflow has already checked
+# out the repo (that's how the runner finds this file in the first place),
+# so `actions/checkout` must stay as the first step of every workflow that
+# uses this action.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: npm
+
+    - run: npm ci
+      shell: bash
