@@ -1,0 +1,42 @@
+name: Migrate
+
+# Applies committed Drizzle migrations to Neon after a merge to main: the `dev`
+# branch first, then `production`. The Vercel production build also migrates
+# production, so the second job is usually a no-op. That redundancy is
+# intentional, see docs/adr/0001-vercel-neon-deployment.md.
+
+on:
+  push:
+    branches: [main]
+
+# Never run two migrations at once. A newer push queues behind an in-progress
+# run instead of cancelling it.
+concurrency:
+  group: migrate
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  migrate-dev:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+      # Sets up Node (same version as the rest of CI) and runs `npm ci`.
+      - uses: ./.github/actions/setup
+      - run: npm run db:migrate
+        env:
+          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
+
+  migrate-production:
+    needs: migrate-dev
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: npm run db:migrate
+        env:
+          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}

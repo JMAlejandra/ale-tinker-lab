@@ -1,11 +1,11 @@
 {
-  "id": "91350258-a348-41ad-a0ed-ff45c055d653",
+  "id": "f94ec7df-39b9-4e0c-a554-e788c13515a9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.t3-docker-scaffold_post": {
-      "name": "t3-docker-scaffold_post",
+    "public.ale_tinker_lab_post": {
+      "name": "ale_tinker_lab_post",
       "schema": "",
       "columns": {
         "id": {
@@ -15,7 +15,7 @@
           "notNull": true,
           "identity": {
             "type": "byDefault",
-            "name": "t3-docker-scaffold_post_id_seq",
+            "name": "ale_tinker_lab_post_id_seq",
             "schema": "public",
             "increment": "1",
             "startWith": "1",
