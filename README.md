@@ -81,19 +81,25 @@ Check these by hand after cloning or after touching the Docker setup:
 
 ## Installing Skills
 
-This repo pins a set of [agent skills](https://skills.sh) in
+This repo lists a set of [agent skills](https://skills.sh) in
 `skills-lock.json`. Install them into the repo with:
 
 ```sh
 npm run skills:install
 ```
 
-This runs `npx skills experimental_install`, which reads `skills-lock.json`
-and fetches each pinned skill (by commit hash) from its source repo. Re-run
-the command after pulling changes to `skills-lock.json` to sync new or
-updated skills.
+This runs `npx skills experimental_install`, which reads `skills-lock.json`,
+fetches the **current** version of each skill from its source repo into
+`.agents/skills/`, and rewrites each `computedHash`. The hashes record what
+was last installed; they don't pin a version, so a diff in them after an
+install means an upstream skill changed. Re-run the command after pulling
+changes to `skills-lock.json` to sync new or updated skills.
 
-The following skill packages are currently pinned:
+`to-spec` is not in the lock: it's committed at `.claude/skills/to-spec/`
+(MIT, see its `LICENSE`) so it works in cloud sessions without an install
+step. Update it by copying the new `SKILL.md` from upstream.
+
+The following skills are installed from the lock:
 
 | Skill                                                                                                                                     | Source                                                                |
 | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
@@ -113,7 +119,6 @@ The following skill packages are currently pinned:
 | [improve-codebase-architecture](https://github.com/mattpocock/skills/blob/main/skills/engineering/improve-codebase-architecture/SKILL.md) | [mattpocock/skills](https://github.com/mattpocock/skills)             |
 | [prototype](https://github.com/mattpocock/skills/blob/main/skills/engineering/prototype/SKILL.md)                                         | [mattpocock/skills](https://github.com/mattpocock/skills)             |
 | [research](https://github.com/mattpocock/skills/blob/main/skills/engineering/research/SKILL.md)                                           | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [resolving-merge-conflicts](https://github.com/mattpocock/skills/blob/main/skills/engineering/resolving-merge-conflicts/SKILL.md)         | [mattpocock/skills](https://github.com/mattpocock/skills)             |
 | [scaffold-exercises](https://github.com/mattpocock/skills/blob/main/skills/misc/scaffold-exercises/SKILL.md)                              | [mattpocock/skills](https://github.com/mattpocock/skills)             |
 | [setup-matt-pocock-skills](https://github.com/mattpocock/skills/blob/main/skills/engineering/setup-matt-pocock-skills/SKILL.md)           | [mattpocock/skills](https://github.com/mattpocock/skills)             |
 | [setup-pre-commit](https://github.com/mattpocock/skills/blob/main/skills/misc/setup-pre-commit/SKILL.md)                                  | [mattpocock/skills](https://github.com/mattpocock/skills)             |
@@ -122,7 +127,6 @@ The following skill packages are currently pinned:
 | [tdd](https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md)                                                     | [mattpocock/skills](https://github.com/mattpocock/skills)             |
 | [teach](https://github.com/mattpocock/skills/blob/main/skills/productivity/teach/SKILL.md)                                                | [mattpocock/skills](https://github.com/mattpocock/skills)             |
 | [to-questionnaire](https://github.com/mattpocock/skills/blob/main/skills/productivity/to-questionnaire/SKILL.md)                          | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [to-spec](https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md)                                             | [mattpocock/skills](https://github.com/mattpocock/skills)             |
 | [to-tickets](https://github.com/mattpocock/skills/blob/main/skills/engineering/to-tickets/SKILL.md)                                       | [mattpocock/skills](https://github.com/mattpocock/skills)             |
 | [triage](https://github.com/mattpocock/skills/blob/main/skills/engineering/triage/SKILL.md)                                               | [mattpocock/skills](https://github.com/mattpocock/skills)             |
 | [wait-what](https://github.com/mattpocock/skills/blob/main/skills/productivity/wait-what/SKILL.md)                                        | [mattpocock/skills](https://github.com/mattpocock/skills)             |

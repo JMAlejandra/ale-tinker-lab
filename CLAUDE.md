@@ -6,7 +6,7 @@
 
 ## Project
 
-Read `CONTEXT.md` for project context and vocabulary, and `docs/adr/` for decisions.
+Read `CONTEXT.md` for project context and vocabulary, `docs/adr/` for decisions, and `docs/features/` for what each piece does (template: `_template.md`).
 
 - Next.js 15 (App Router), tRPC, Drizzle ORM, Postgres.
 - Vercel deploys `main` to production and every other branch as a preview.
