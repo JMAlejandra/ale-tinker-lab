@@ -44,6 +44,19 @@ Claude Code cloud sessions have no Compose stack. Instead,
 `.claude/hooks/session-start.sh` starts a throwaway Postgres 18 container,
 applies migrations and sets `DATABASE_URL`, so `npm test` works there too.
 
+## Git hooks
+
+`npm install` enables the hooks in `.githooks/` (via the `prepare` script):
+
+- **commit-msg**: messages must follow [Conventional Commits](https://www.conventionalcommits.org/),
+  e.g. `feat: add search` or `fix(db): handle empty names`. CI checks PR titles
+  the same way.
+- **pre-commit**: runs lint, typecheck and tests, so the test database must be
+  running (`docker compose up -d db`).
+
+`git commit --no-verify` skips them in an emergency; CI still runs the same
+checks. Rationale: `docs/adr/0003-git-hooks.md`.
+
 ## Manual smoke-test checklist
 
 CI (see `.github/workflows/`) covers lint, typecheck, build, and automated
