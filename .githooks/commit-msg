@@ -1,0 +1,3 @@
+#!/bin/sh
+# Enforces Conventional Commit subjects. Bypass with `git commit --no-verify`.
+grep -v '^#' "$1" | sed '/^[[:space:]]*$/d' | scripts/check-commit-message.sh

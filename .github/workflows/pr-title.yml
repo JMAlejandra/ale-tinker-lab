@@ -1,0 +1,20 @@
+name: PR title
+
+# Squash merges use the PR title as the commit message, which the local
+# commit-msg hook never sees. Same rule, same script.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: printf '%s\n' "$TITLE" | scripts/check-commit-message.sh
+        env:
+          TITLE: ${{ github.event.pull_request.title }}

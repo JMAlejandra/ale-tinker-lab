@@ -1,0 +1,44 @@
+#!/bin/sh
+# Runs lint, typecheck and tests before every commit (see
+# docs/adr/0003-git-hooks.md). Bypass with `git commit --no-verify`; CI still
+# runs the same checks on the PR.
+set -e
+
+if [ ! -d node_modules ]; then
+  echo "pre-commit: node_modules is missing. Run \`npm ci\` first." >&2
+  exit 1
+fi
+
+# jest doesn't read .env, so take DATABASE_URL from it when it isn't set.
+if [ -z "${DATABASE_URL:-}" ] && [ -f .env ]; then
+  DATABASE_URL=$(sed -n 's/^DATABASE_URL=//p' .env | tail -n 1 | tr -d "\"'")
+  export DATABASE_URL
+fi
+
+# Tests write rows, so only ever run them against a local database.
+case "${DATABASE_URL:-}" in
+  *@localhost:* | *@localhost/* | *@127.0.0.1:* | *@127.0.0.1/*) ;;
+  "")
+    echo "pre-commit: DATABASE_URL is not set (in the environment or .env)." >&2
+    exit 1
+    ;;
+  *)
+    echo "pre-commit: refusing to run tests against a non-local DATABASE_URL." >&2
+    exit 1
+    ;;
+esac
+
+if ! node -e '
+  const sql = require("postgres")(process.env.DATABASE_URL, { connect_timeout: 3, max: 1 });
+  sql`select 1`.then(() => sql.end()).catch(() => process.exit(1));
+' 2>/dev/null; then
+  echo "pre-commit: can't reach the test database. Start it with \`docker compose up -d db\`." >&2
+  exit 1
+fi
+
+echo "pre-commit: lint"
+SKIP_ENV_VALIDATION=1 npm run --silent lint
+echo "pre-commit: typecheck"
+npm run --silent typecheck
+echo "pre-commit: test"
+npm test --silent
