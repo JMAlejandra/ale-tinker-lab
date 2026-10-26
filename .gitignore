@@ -40,7 +40,10 @@ yarn-error.log*
 
 # AI Agent stuff
 /.agents
-/.claude
+# Installed skills stay ignored; the committed session hook does not.
+/.claude/*
+!/.claude/settings.json
+!/.claude/hooks/
 /.cursor
 
 # Not ignorable

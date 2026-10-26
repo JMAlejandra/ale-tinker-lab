@@ -19,7 +19,7 @@ Read `CONTEXT.md` for project context and vocabulary, and `docs/adr/` for decisi
 - Every schema change ships with a committed drizzle-kit migration (`npm run db:generate`).
 - Table prefix is `ale_tinker_lab_`.
 - Never commit secrets or connection strings. The repo is public.
-- Don't rely on Docker in cloud sessions.
+- In cloud sessions, Docker runs only the test database (started by `.claude/hooks/session-start.sh`).
 - Always work on a branch and open a PR. Never push to `main`.
 - Every PR description says whether it changes the schema.
 

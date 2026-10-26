@@ -15,6 +15,11 @@ cp .env.example .env
 docker compose up -d
 ```
 
+Postgres runs version 18, matching production on Neon (see
+`docs/adr/0002-session-test-database.md`). If you have a `db-data` volume from
+before the move to 18, recreate it once with `docker compose down -v` (this
+deletes local data).
+
 Then apply the initial migration using either workflow (see
 [Database: migrations and seeding](#database-migrations-and-seeding) below
 for the full command table):
@@ -32,6 +37,12 @@ The app ships with the T3 "Stock" example (a `post` router backed by a
 Drizzle-managed Postgres table) so there's something real to click through
 and query once the stack is up. Verify it end-to-end by creating a post from
 the homepage and confirming it shows up in Drizzle Studio's `post` table.
+
+## Cloud sessions
+
+Claude Code cloud sessions have no Compose stack. Instead,
+`.claude/hooks/session-start.sh` starts a throwaway Postgres 18 container,
+applies migrations and sets `DATABASE_URL`, so `npm test` works there too.
 
 ## Manual smoke-test checklist
 
