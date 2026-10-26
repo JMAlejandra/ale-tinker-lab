@@ -53,6 +53,9 @@ applies migrations and sets `DATABASE_URL`, so `npm test` works there too.
   the same way.
 - **pre-commit**: runs lint, typecheck and tests, so the test database must be
   running (`docker compose up -d db`).
+- **pre-push**: branch names must be `<type>/<short-name>` with the same types,
+  e.g. `feat/search-page` (`main` and `prototype/*` are exempt). CI checks PR
+  branch names the same way.
 
 `git commit --no-verify` skips them in an emergency; CI still runs the same
 checks. Rationale: `docs/adr/0003-git-hooks.md`.

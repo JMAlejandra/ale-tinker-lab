@@ -1,7 +1,8 @@
 name: PR title
 
 # Squash merges use the PR title as the commit message, which the local
-# commit-msg hook never sees. Same rule, same script.
+# commit-msg hook never sees. Same rule, same script. Also checks the branch
+# name, for branches pushed with --no-verify or created on github.com.
 
 on:
   pull_request:
@@ -18,3 +19,11 @@ jobs:
       - run: printf '%s\n' "$TITLE" | scripts/check-commit-message.sh
         env:
           TITLE: ${{ github.event.pull_request.title }}
+
+  branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/check-branch-name.sh "$BRANCH"
+        env:
+          BRANCH: ${{ github.head_ref }}
