@@ -3,8 +3,8 @@
 A personal experimentation sandbox: one T3-stack app (Next.js, tRPC, Drizzle,
 Postgres) where each experiment is a route. It was created from the T3 Docker
 scaffold, which still provides the Dockerized local dev environment below. See
-`CONTEXT.md` for terminology and `docs/adr/` for the architectural decisions
-behind this setup.
+`CONTEXT.md` for project context, `GLOSSARY.md` for terminology and `docs/adr/`
+for the architectural decisions behind this setup.
 
 ## Local setup (Docker, Linux)
 
@@ -79,61 +79,51 @@ Check these by hand after cloning or after touching the Docker setup:
       volume and confirm the app still serves working pages afterward. This
       proves the container path alone is sufficient to stand up the stack.
 
-## Installing Skills
+## Agent skills
 
-This repo pins a set of [agent skills](https://skills.sh) in
-`skills-lock.json`. Install them into the repo with:
+The repo commits its [agent skills](https://skills.sh) in `.claude/skills/`,
+where Claude Code loads them, locally and in cloud sessions, with no install
+step. Each skill is an unchanged copy of an MIT-licensed upstream skill; its
+`LICENSE` file names the exact source commit. `grilling` is kept because
+`grill-me`, `grill-with-docs`, `triage`, `wayfinder` and
+`improve-codebase-architecture` all run it.
 
-```sh
-npm run skills:install
-```
+"auto" skills can also be picked by Claude when a task matches their
+description; "only" skills run when you type the command. The vendored
+`code-review` replaces Claude Code's built-in `/code-review`.
 
-This runs `npx skills experimental_install`, which reads `skills-lock.json`
-and fetches each pinned skill (by commit hash) from its source repo. Re-run
-the command after pulling changes to `skills-lock.json` to sync new or
-updated skills.
+| Skill | Source | Invocation |
+| --- | --- | --- |
+| [ask-matt](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/ask-matt/SKILL.md) | mattpocock/skills@5beb35b | `/ask-matt` only |
+| [code-review](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/code-review/SKILL.md) | mattpocock/skills@5beb35b | auto + `/code-review` |
+| [codebase-design](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/codebase-design/SKILL.md) | mattpocock/skills@5beb35b | auto + `/codebase-design` |
+| [diagnosing-bugs](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/diagnosing-bugs/SKILL.md) | mattpocock/skills@5beb35b | auto + `/diagnosing-bugs` |
+| [domain-modeling](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/domain-modeling/SKILL.md) | mattpocock/skills@5beb35b | auto + `/domain-modeling` |
+| [frontend-design](https://github.com/vercel-labs/open-agents/tree/cf865e94de7729751c747171785b6ce57e7b178c/.agents/skills/frontend-design/SKILL.md) | vercel-labs/open-agents@cf865e9 | auto + `/frontend-design` |
+| [grill-me](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/productivity/grill-me/SKILL.md) | mattpocock/skills@5beb35b | `/grill-me` only |
+| [grill-with-docs](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/grill-with-docs/SKILL.md) | mattpocock/skills@5beb35b | `/grill-with-docs` only |
+| [grilling](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/productivity/grilling/SKILL.md) | mattpocock/skills@5beb35b | auto + `/grilling` |
+| [handoff](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/productivity/handoff/SKILL.md) | mattpocock/skills@5beb35b | `/handoff` only |
+| [implement](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/implement/SKILL.md) | mattpocock/skills@5beb35b | `/implement` only |
+| [improve-codebase-architecture](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/improve-codebase-architecture/SKILL.md) | mattpocock/skills@5beb35b | `/improve-codebase-architecture` only |
+| [prototype](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/prototype/SKILL.md) | mattpocock/skills@5beb35b | auto + `/prototype` |
+| [research](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/research/SKILL.md) | mattpocock/skills@5beb35b | auto + `/research` |
+| [setup-matt-pocock-skills](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/setup-matt-pocock-skills/SKILL.md) | mattpocock/skills@5beb35b | `/setup-matt-pocock-skills` only |
+| [shadcn](https://github.com/shadcn/ui/tree/481d523374745e77d0cf9c53a4115ab5dd7c8481/skills/shadcn/SKILL.md) | shadcn/ui@481d523 | auto + `/shadcn` |
+| [tdd](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/tdd/SKILL.md) | mattpocock/skills@5beb35b | auto + `/tdd` |
+| [teach](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/productivity/teach/SKILL.md) | mattpocock/skills@5beb35b | `/teach` only |
+| [to-questionnaire](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/productivity/to-questionnaire/SKILL.md) | mattpocock/skills@5beb35b | `/to-questionnaire` only |
+| [to-spec](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/to-spec/SKILL.md) | mattpocock/skills@5beb35b | `/to-spec` only |
+| [to-tickets](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/to-tickets/SKILL.md) | mattpocock/skills@5beb35b | `/to-tickets` only |
+| [triage](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/triage/SKILL.md) | mattpocock/skills@5beb35b | `/triage` only |
+| [wait-what](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/productivity/wait-what/SKILL.md) | mattpocock/skills@5beb35b | `/wait-what` only |
+| [wayfinder](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/engineering/wayfinder/SKILL.md) | mattpocock/skills@5beb35b | `/wayfinder` only |
+| [writing-for-agents](https://github.com/mattpocock/skills/tree/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/productivity/writing-for-agents/SKILL.md) | mattpocock/skills@5beb35b | auto + `/writing-for-agents` |
 
-The following skill packages are currently pinned:
-
-| Skill                                                                                                                                     | Source                                                                |
-| ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [ask-matt](https://github.com/mattpocock/skills/blob/main/skills/engineering/ask-matt/SKILL.md)                                           | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [claude-handoff](https://github.com/mattpocock/skills/blob/main/skills/in-progress/claude-handoff/SKILL.md)                               | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [code-review](https://github.com/mattpocock/skills/blob/main/skills/engineering/code-review/SKILL.md)                                     | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [codebase-design](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/SKILL.md)                             | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [diagnosing-bugs](https://github.com/mattpocock/skills/blob/main/skills/engineering/diagnosing-bugs/SKILL.md)                             | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [domain-modeling](https://github.com/mattpocock/skills/blob/main/skills/engineering/domain-modeling/SKILL.md)                             | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [frontend-design](https://github.com/vercel-labs/open-agents/blob/main/.agents/skills/frontend-design/SKILL.md)                           | [vercel-labs/open-agents](https://github.com/vercel-labs/open-agents) |
-| [git-guardrails-claude-code](https://github.com/mattpocock/skills/blob/main/skills/misc/git-guardrails-claude-code/SKILL.md)              | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [grill-me](https://github.com/mattpocock/skills/blob/main/skills/productivity/grill-me/SKILL.md)                                          | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [grill-with-docs](https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md)                             | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [grilling](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md)                                          | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [handoff](https://github.com/mattpocock/skills/blob/main/skills/productivity/handoff/SKILL.md)                                            | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [implement](https://github.com/mattpocock/skills/blob/main/skills/engineering/implement/SKILL.md)                                         | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [improve-codebase-architecture](https://github.com/mattpocock/skills/blob/main/skills/engineering/improve-codebase-architecture/SKILL.md) | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [prototype](https://github.com/mattpocock/skills/blob/main/skills/engineering/prototype/SKILL.md)                                         | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [research](https://github.com/mattpocock/skills/blob/main/skills/engineering/research/SKILL.md)                                           | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [resolving-merge-conflicts](https://github.com/mattpocock/skills/blob/main/skills/engineering/resolving-merge-conflicts/SKILL.md)         | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [scaffold-exercises](https://github.com/mattpocock/skills/blob/main/skills/misc/scaffold-exercises/SKILL.md)                              | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [setup-matt-pocock-skills](https://github.com/mattpocock/skills/blob/main/skills/engineering/setup-matt-pocock-skills/SKILL.md)           | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [setup-pre-commit](https://github.com/mattpocock/skills/blob/main/skills/misc/setup-pre-commit/SKILL.md)                                  | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [setup-ts-deep-modules](https://github.com/mattpocock/skills/blob/main/skills/in-progress/setup-ts-deep-modules/SKILL.md)                 | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [shadcn](https://github.com/shadcn/ui/blob/main/skills/shadcn/SKILL.md)                                                                   | [shadcn/ui](https://github.com/shadcn/ui)                             |
-| [tdd](https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md)                                                     | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [teach](https://github.com/mattpocock/skills/blob/main/skills/productivity/teach/SKILL.md)                                                | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [to-questionnaire](https://github.com/mattpocock/skills/blob/main/skills/productivity/to-questionnaire/SKILL.md)                          | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [to-spec](https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md)                                             | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [to-tickets](https://github.com/mattpocock/skills/blob/main/skills/engineering/to-tickets/SKILL.md)                                       | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [triage](https://github.com/mattpocock/skills/blob/main/skills/engineering/triage/SKILL.md)                                               | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [wait-what](https://github.com/mattpocock/skills/blob/main/skills/productivity/wait-what/SKILL.md)                                        | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [wayfinder](https://github.com/mattpocock/skills/blob/main/skills/engineering/wayfinder/SKILL.md)                                         | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [wizard](https://github.com/mattpocock/skills/blob/main/skills/engineering/wizard/SKILL.md)                                               | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-| [writing-for-agents](https://github.com/mattpocock/skills/blob/main/skills/productivity/writing-for-agents/SKILL.md)                      | [mattpocock/skills](https://github.com/mattpocock/skills)             |
-
-Most of these come from [mattpocock/skills](https://github.com/mattpocock/skills);
-`frontend-design` comes from [vercel-labs/open-agents](https://github.com/vercel-labs/open-agents),
-and `shadcn` comes from [shadcn/ui](https://github.com/shadcn/ui).
-
+To update or add a skill, copy its folder from the upstream repo at a known
+commit into `.claude/skills/<name>/` (leave out `agents/` and `evals/`), and
+update the source line in its `LICENSE`. Review the diff like any other code
+before committing.
 ## Auth
 
 NextAuth.js is intentionally **not** included in this scaffold. Auth strategy and provider choice vary too

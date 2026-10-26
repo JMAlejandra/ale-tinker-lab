@@ -20,8 +20,7 @@
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
     "start": "next start",
     "test": "jest",
-    "typecheck": "tsc --noEmit",
-    "skills:install": "npx skills experimental_install"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.12.0",

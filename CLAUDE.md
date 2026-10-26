@@ -1,12 +1,12 @@
 ## Maintaining this file
 
 - A line belongs here only if it applies to nearly every task.
-- Procedures go in skills (`.claude/skills/`), decisions in `docs/adr/`, project vocabulary and context in `CONTEXT.md`.
+- Procedures go in skills (`.claude/skills/`), decisions in `docs/adr/`, domain terms in `GLOSSARY.md`, project context in `CONTEXT.md`.
 - Link to those instead of copying their content. Keep this file under about 50 lines.
 
 ## Project
 
-Read `CONTEXT.md` for project context and vocabulary, and `docs/adr/` for decisions.
+Read `CONTEXT.md` for project context, `GLOSSARY.md` for domain terms, `docs/adr/` for decisions, and `docs/features/` for what each piece does (template: `_template.md`).
 
 - Next.js 15 (App Router), tRPC, Drizzle ORM, Postgres.
 - Vercel deploys `main` to production and every other branch as a preview.
@@ -36,4 +36,4 @@ Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `
 
 ### Domain docs
 
-Single-context layout: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+Single-context layout: `GLOSSARY.md` + `docs/adr/` at the repo root (`CONTEXT.md` is project context, not a glossary). See `docs/agents/domain.md`.
