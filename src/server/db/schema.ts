@@ -9,9 +9,7 @@ import { index, pgTableCreator } from "drizzle-orm/pg-core";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTableCreator(
-  (name) => `t3-docker-scaffold_${name}`,
-);
+export const createTable = pgTableCreator((name) => `ale_tinker_lab_${name}`);
 
 export const posts = createTable(
   "post",

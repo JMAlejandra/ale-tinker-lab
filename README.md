@@ -1,14 +1,16 @@
-# T3 Docker Scaffold
+# ale-tinker-lab
 
-A reusable template repository providing a Dockerized local dev environment for
-T3-stack projects (Next.js, tRPC, Drizzle, Postgres). See `CONTEXT.md` for
-terminology and `docs/adr/` for the architectural decisions behind this setup.
+A personal experimentation sandbox: one T3-stack app (Next.js, tRPC, Drizzle,
+Postgres) where each experiment is a route. It was created from the T3 Docker
+scaffold, which still provides the Dockerized local dev environment below. See
+`CONTEXT.md` for terminology and `docs/adr/` for the architectural decisions
+behind this setup.
 
-## Setup
+## Local setup (Docker, Linux)
 
 ```sh
 git clone <this-repo-url>
-cd my-web-dev-scaffold
+cd ale-tinker-lab
 cp .env.example .env
 docker compose up -d
 ```
@@ -55,7 +57,7 @@ Check these by hand after cloning or after touching the Docker setup:
 
 ## Installing Skills
 
-This scaffold pins a set of [agent skills](https://skills.sh) in
+This repo pins a set of [agent skills](https://skills.sh) in
 `skills-lock.json`. Install them into the repo with:
 
 ```sh
@@ -122,19 +124,19 @@ Auth.js for newer versions) directly: install the package, add the
 and wire `src/env.js` to validate any new auth-related environment
 variables the same way it already validates `DATABASE_URL`.
 
-## Out of scope
+## Deployment
 
-This scaffold covers local development only. The following are explicitly left to each downstream project to decide and implement:
+Vercel builds a preview for every branch and deploys `main` to production,
+with functions in `cle1`. Neon hosts Postgres in `aws-us-east-2`: the
+`production` branch backs production, and the `dev` branch (fake data only)
+backs every preview. The app connects through Neon's pooled string
+(`DATABASE_URL`). Migrations use the direct string (`DATABASE_URL_UNPOOLED`)
+and run during the Vercel build (`npm run build:deploy`) and again from
+`.github/workflows/migrate.yml` after every merge to `main`. See
+`docs/adr/0001-vercel-neon-deployment.md` for the details and rationale.
 
-- **Production deployment** (hosting platform, CI/CD to prod, etc.)
-- **A production Docker build target** — the `Dockerfile` here is
-  single-stage and dev-only; there is no prod stage or
-  `docker-compose.prod.yml`
-- **Production database provisioning** — the scaffold's Postgres is a local
-  container with a named volume, not a production-ready managed database
-
-Building these now would mean guessing at infrastructure that doesn't exist
-yet, and downstream projects would likely delete or rewrite it anyway.
+The `Dockerfile` and `docker-compose.yml` are for local development only.
+Production does not run in Docker.
 
 ## Database: migrations and seeding
 
@@ -156,7 +158,8 @@ checked into `drizzle/` — a fresh clone only needs one migrate command, not a
 
 The host path connects to Postgres via its published port (`POSTGRES_PORT` in
 `.env`); the container path connects to the `db` service directly. Both apply
-against the same database.
+against the same database. The `db:*` scripts use `DATABASE_URL_UNPOOLED` when
+it's set and fall back to `DATABASE_URL`, so local setups only need the latter.
 
 The Stock example does not ship a seed script, so there is no `db:seed`
 script here.
