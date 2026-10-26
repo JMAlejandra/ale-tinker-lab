@@ -3,8 +3,8 @@
 A personal experimentation sandbox: one T3-stack app (Next.js, tRPC, Drizzle,
 Postgres) where each experiment is a route. It was created from the T3 Docker
 scaffold, which still provides the Dockerized local dev environment below. See
-`CONTEXT.md` for terminology and `docs/adr/` for the architectural decisions
-behind this setup.
+`CONTEXT.md` for project context, `GLOSSARY.md` for terminology and `docs/adr/`
+for the architectural decisions behind this setup.
 
 ## Local setup (Docker, Linux)
 

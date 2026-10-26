@@ -23,7 +23,7 @@ currently in production? Migrations can run before the new deployment is live. -
 
 - [ ] ADR in `docs/adr/` for any decision that is hard to reverse or surprising
 - [ ] Feature doc in `docs/features/` added or updated
-- [ ] `CONTEXT.md` / README updated, or not needed
+- [ ] `GLOSSARY.md` (new terms), `CONTEXT.md` / README updated, or not needed
 
 ## Manual steps after merge
 

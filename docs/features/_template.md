@@ -5,7 +5,7 @@ A feature doc describes one piece of the system as it is now: what it does,
 how it fits together, what it can't do, and why it's shaped this way. Keep it
 current when the feature changes. A single decision with trade-offs gets its
 own ADR in docs/adr/; link it from "Decisions" instead of repeating it.
-Use the vocabulary in CONTEXT.md. Delete these comments.
+Use the vocabulary in GLOSSARY.md. Delete these comments.
 -->
 
 # <Feature name>
