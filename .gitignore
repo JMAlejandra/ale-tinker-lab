@@ -40,18 +40,15 @@ yarn-error.log*
 
 # AI Agent stuff
 /.agents
-# Installed skills stay ignored; the committed session hook does not.
+# Local Claude Code state stays ignored; settings, hooks and the vendored
+# skills (see .claude/skills/*/LICENSE) are committed.
 /.claude/*
 !/.claude/settings.json
 !/.claude/hooks/
-# Committed skills (see .claude/skills/*/LICENSE); others are installed from skills-lock.json.
 !/.claude/skills/
-/.claude/skills/*
-!/.claude/skills/to-spec/
 /.cursor
 
 # Not ignorable
-!skills-lock.json
 !.skills.json
 
 # Scaffold AI Agent Docs

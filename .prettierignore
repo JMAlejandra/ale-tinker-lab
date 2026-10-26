@@ -13,7 +13,6 @@ coverage
 package-lock.json
 *.tsbuildinfo
 drizzle
-skills-lock.json
 
 # vercel
 .vercel
