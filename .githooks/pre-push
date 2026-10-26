@@ -1,0 +1,11 @@
+#!/bin/sh
+# Refuses to push branches whose names don't follow <type>/<short-name>.
+# Bypass with `git push --no-verify`; CI checks PR branch names too.
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  # Deleting a remote branch (an all-zero local sha) is always allowed.
+  case "$local_sha" in *[!0]*) ;; *) continue ;; esac
+  case "$remote_ref" in
+    refs/heads/*) scripts/check-branch-name.sh "${remote_ref#refs/heads/}" || exit 1 ;;
+  esac
+done

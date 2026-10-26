@@ -4,7 +4,7 @@
 # Reads the subject from stdin. Used by .githooks/commit-msg and the PR title
 # workflow, so the rule lives in one place.
 
-TYPES="feat|fix|docs|chore|refactor|test|ci|build|perf|style|revert"
+. "$(dirname "$0")/conventional-types.sh"
 
 subject=$(head -n 1)
 

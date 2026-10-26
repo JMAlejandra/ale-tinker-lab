@@ -8,6 +8,10 @@ if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
   exit 0
 fi
 
+# Also safe to run by hand (e.g. when the pre-commit hook says the database
+# is down), where Claude Code's variables aren't set.
+CLAUDE_PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}"
+CLAUDE_ENV_FILE="${CLAUDE_ENV_FILE:-/dev/null}"
 cd "$CLAUDE_PROJECT_DIR"
 
 # Hook stdout lands in Claude's context, so keep step output in a log and
