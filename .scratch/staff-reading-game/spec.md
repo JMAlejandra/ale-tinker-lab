@@ -284,3 +284,46 @@ These choices came out of planning and are recorded so they don't have to be red
 | Unit tests | Whatever runner the repo already uses; Vitest if none (Jest is also acceptable) | Covers game logic, especially note ↔ position mapping, re-queue and scoring |
 | UI tests | React Testing Library with user-event | Covers setup, Name mode buttons, keyboard paths and the end screen |
 | End-to-end tests (later) | Playwright, including mobile device emulation | Drag and touch interactions are hard to test in a simulated DOM |
+
+## Decisions
+
+Gaps found while planning the v1 implementation, each resolved with the choice most consistent with the spec. Later entries (D25 onward) answer questions raised by implementing agents.
+
+### Placement and tooling
+
+- **D1. Route and code location.** The game is an Experiment at `/staff-reading-game`, linked from the home page. Logic lives in a business-logic module `src/modules/staff-reading-game/` (CODING_STANDARDS §1.1: barrel `index.ts`, files prefixed `staff-reading-game.*`, tests in `__tests__/`). Components are colocated under `src/app/staff-reading-game/_components/`, matching the existing `src/app/_components/` convention. The module is client-side and has no Drizzle access, so instead of `service`/`repository` its parts are named for what they hold: `types`, `notes`, `queue`, `scoring`, `session`, `validators`, `storage`, `audio`, `errors`.
+- **D2. Test runner is Jest**, because the repo already uses it (the spec says "whatever runner the repo already uses"), even though CODING_STANDARDS §4 names Vitest. Component tests use React Testing Library + user-event in jsdom, opted into per file with a `@jest-environment jsdom` docblock so database tests stay on the node environment.
+- **D3. Existing files are reformatted with Prettier in a separate `style:` commit**, because `npm run format:check` already fails on `main` (21 files) and must pass before every commit here.
+- **D4. No schema change.** v1 adds no Drizzle tables and no tRPC procedures.
+- **D5. UI text is English.** Solfège affects note names only.
+- **D6. Styling is plain Tailwind 4**, no new component library.
+
+### Notes and prompts
+
+- **D7. Step numbering.** A staff position is an integer step counted from the clef's bottom line (0 = E4 treble, G2 bass); the visible area is steps −4 to 12 in both clefs.
+- **D8. Letter prompts (Place mode, strict octave off).** The letter is drawn uniformly from the distinct letters in the range preset, excluding the letter just shown. A concrete target note with that letter is then drawn from the preset; it is what gets stored as `targetNote` and shown in green after a miss.
+- **D9. Place mode `answer` is the canonical note placed; Name mode `answer` is the chosen letter** (C–B), never a solfège name.
+- **D10. Re-queue identity** is the canonical note, or the letter for letter prompts. The 2-re-queue cap applies per note per Round only; Practice has no cap, since it is endless and exists to drill misses.
+- **D11. Re-queue positions.** "3–5 positions ahead" means the missed note reappears as the 3rd, 4th or 5th prompt after the miss. If fewer prompts than the chosen offset remain in a Round, it goes at the end. If a re-queued note comes up right after the same note, it swaps with the following prompt; when nothing follows, it is shown anyway.
+- **D12. Never-twice-in-a-row** applies to new draws; a re-queue landing next to the same note is handled by D11.
+
+### Scoring, stats and states
+
+- **D13. Touch speed window** applies to an attempt committed with the Confirm button (the tap, adjust, Confirm flow), not by device sniffing. Mouse clicks and keyboard commits use the normal window.
+- **D14. Counts.** `correctCount` and `totalCount` on a Session count first-time (non-re-queued) prompts only, in both session types, so accuracy is always `correctCount / totalCount`. Practice's "notes answered" shows all attempts, re-queued ones included.
+- **D15. Practice attempts store `points: 0`**; the Session `score` is null.
+- **D16. Personal best.** The highest score among completed Rounds with the same mode, clef and range preset (strict octave is not part of the key, as specified). The badge shows when the score is strictly higher than the previous best, or when there is no previous best.
+- **D17. Game states** (the diagram was not exported): `setup`, `prompting`, `feedback`, `summary` (Practice exited) and `ended` (Round completed). An exited Round returns straight to `setup`.
+- **D18. Exit has no confirmation dialog**, by Escape or the exit button. The spec asks for none.
+- **D19. Feedback timings** are confirmed at 600 ms and 1,200 ms (the open question is ticked) and kept as named constants.
+
+### Input
+
+- **D20. Pointer type decides the Place flow per interaction**: a `mouse` pointer shows the ghost and commits on click; `touch` and `pen` place a provisional notehead. The up/down and Confirm buttons show on coarse-pointer devices and after any touch, pen or keyboard placement.
+- **D21. Keyboard in Place mode**: the first arrow press puts the notehead on the middle line; Enter with no notehead does nothing.
+- **D22. Preview sound** plays on every step change of the ghost or provisional notehead, whatever the input.
+
+### Sound and storage
+
+- **D23. Sound uses the Web Audio API directly instead of Tone.js**: a small sampler that decodes the Salamander samples and pitch-shifts by playback rate, with an oscillator tone until samples are ready. It does the same job without a large dependency. The 17 samples (C, D♯, F♯, A from C2 to C6, 1.3 MB, CC BY 3.0, Alexander Holm) are self-hosted in `public/staff-reading-game/piano/`.
+- **D24. Storage.** One `localStorage` key holds a versioned document (`schemaVersion: 1`) with the profile, settings, sessions and attempts, validated with Zod on load. The progress-storage interface is asynchronous so a server implementation can replace it. A Session is written when it starts (`completed: false`, `endedAt: null`), each Attempt at commit, and the Session again when it ends, so a closed browser leaves an incomplete session. Retention never trims the session in progress. One-time hint flags (iPhone silent switch) are device UI state and live in a separate key outside the synced model. When storage is unavailable the same interface is served from memory and the notice is shown.
