@@ -57,3 +57,40 @@ export type {
 } from './staff-reading-game.storage'
 export { createAudioEngine } from './staff-reading-game.audio'
 export type { AudioContextLike, AudioEngine, AudioEngineOptions } from './staff-reading-game.audio'
+export { pointsFor, speedBonus, streakMultiplier } from './staff-reading-game.scoring'
+export type { PointsInput } from './staff-reading-game.scoring'
+export { ResponseTimer } from './staff-reading-game.timer'
+export {
+  FEEDBACK_CORRECT_MS,
+  FEEDBACK_WRONG_MS,
+  ROUND_LENGTH,
+  WRONG_NOTE_SOUND_DELAY_MS,
+  advanceAction,
+  answerAction,
+  createSession,
+  exitAction,
+  selectAccuracy,
+  selectAverageResponseMs,
+  selectBestStreak,
+  selectNoteResults,
+  selectNotesAnswered,
+  selectProgress,
+  selectScore,
+  selectSessionTotals,
+  selectStreak,
+  sessionReducer,
+  startAction,
+} from './staff-reading-game.session'
+export type {
+  Accuracy,
+  AnswerInput,
+  AnswerResult,
+  AttemptRecord,
+  NoteResult,
+  Prompt,
+  SessionAction,
+  SessionState,
+  SessionStatus,
+  SessionTotals,
+} from './staff-reading-game.session'
+export type { PromptDraw, QueueSlot } from './staff-reading-game.queue'
