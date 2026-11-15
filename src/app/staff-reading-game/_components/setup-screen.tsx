@@ -9,6 +9,7 @@ import {
 
 import { OptionGroup, type Option } from './option-group'
 import { ToggleField } from './toggle-field'
+import { useFocusOnMount } from './use-focus-on-mount'
 
 const MODE_OPTIONS: readonly Option<Mode>[] = [
   { value: 'place', label: 'Place the note', description: 'See a note name, put it on the staff.' },
@@ -45,6 +46,8 @@ type SetupScreenProps = {
   /** False when progress only lives in memory on this device. */
   persisting: boolean
   onStart: () => void
+  /** Focus the heading on mount: set when returning from another screen, not on page load. */
+  focusHeading?: boolean
 }
 
 export function SetupScreen({
@@ -53,13 +56,21 @@ export function SetupScreen({
   personalBest,
   persisting,
   onStart,
+  focusHeading = false,
 }: SetupScreenProps) {
+  const headingRef = useFocusOnMount<HTMLHeadingElement>(focusHeading)
   const update = (patch: Partial<GameSettings>) => onChange({ ...settings, ...patch })
 
   return (
     <div className="flex flex-col gap-6">
       <header>
-        <h1 className="text-ink text-3xl font-extrabold tracking-tight">Staff Reading Game</h1>
+        <h1
+          ref={headingRef}
+          tabIndex={-1}
+          className="text-ink text-3xl font-extrabold tracking-tight focus:outline-none"
+        >
+          Staff Reading Game
+        </h1>
         <p className="text-ink-muted mt-1">Choose how you want to practise.</p>
       </header>
 

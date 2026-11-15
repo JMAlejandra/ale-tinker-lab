@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 
 import {
   DEFAULT_SETTINGS,
+  type AudioEngine,
   type GameSettings,
   type PersonalBestKey,
   type ProgressStorage,
@@ -17,19 +18,32 @@ type FakeOptions = {
   bests?: (key: PersonalBestKey) => number | null
 }
 
+const silentAudio: AudioEngine = {
+  unlock: () => undefined,
+  loadSamples: () => Promise.resolve(),
+  play: () => undefined,
+  setMuted: () => undefined,
+  dispose: () => undefined,
+}
+
 function createFakeStorage(options: FakeOptions = {}) {
   const saved: GameSettings[] = []
   const bestQueries: PersonalBestKey[] = []
   const unused = () => Promise.reject(new Error('not used by the setup screen'))
   const storage: ProgressStorage = {
-    getProfile: unused,
+    getProfile: () =>
+      Promise.resolve({
+        id: 'profile-1',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        linkedUserId: null,
+      }),
     getSettings: () => Promise.resolve(options.settings ?? { ...DEFAULT_SETTINGS }),
     saveSettings: (settings) => {
       saved.push(settings)
       return Promise.resolve()
     },
-    saveSession: unused,
-    addAttempt: unused,
+    saveSession: () => Promise.resolve(),
+    addAttempt: () => Promise.resolve(),
     listSessions: unused,
     listAttempts: unused,
     getPersonalBest: (key) => {
@@ -37,15 +51,20 @@ function createFakeStorage(options: FakeOptions = {}) {
       return Promise.resolve(options.bests?.(key) ?? null)
     },
     isPersisting: () => Promise.resolve(options.persisting ?? true),
-    hasSeenHint: unused,
-    markHintSeen: unused,
+    hasSeenHint: () => Promise.resolve(false),
+    markHintSeen: () => Promise.resolve(),
   }
   return { storage, saved, bestQueries }
 }
 
 async function renderGame(options?: FakeOptions) {
   const fake = createFakeStorage(options)
-  render(<StaffReadingGame storage={fake.storage} />)
+  render(
+    <StaffReadingGame
+      storage={fake.storage}
+      audio={silentAudio}
+    />,
+  )
   await screen.findByRole('button', { name: 'Start' })
   return fake
 }
@@ -138,7 +157,8 @@ describe('StaffReadingGame setup screen', () => {
 
     await user.click(screen.getByRole('button', { name: 'Start' }))
     best = 500
-    await user.click(screen.getByRole('button', { name: 'Back' }))
+    await user.click(screen.getByRole('button', { name: 'Exit' }))
+    await user.click(screen.getByRole('button', { name: 'Back to setup' }))
     expect(await screen.findByText('Personal best: 500')).toBeInTheDocument()
   })
 
@@ -160,14 +180,16 @@ describe('StaffReadingGame setup screen', () => {
     )
   })
 
-  it('Start leaves the setup screen and Back returns with settings kept', async () => {
+  it('Start leaves the setup screen and exiting returns with settings kept', async () => {
     const user = userEvent.setup()
     await renderGame()
     await user.click(screen.getByRole('radio', { name: 'Bass' }))
     await user.click(screen.getByRole('button', { name: 'Start' }))
     expect(screen.queryByRole('button', { name: 'Start' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Back' }))
+    await user.click(screen.getByRole('button', { name: 'Exit' }))
+    await user.click(screen.getByRole('button', { name: 'Back to setup' }))
     expect(screen.getByRole('radio', { name: 'Bass' })).toBeChecked()
   })
 })
