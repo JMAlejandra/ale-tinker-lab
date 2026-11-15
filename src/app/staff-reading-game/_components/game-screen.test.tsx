@@ -21,6 +21,8 @@ import { StaffReadingGame } from './staff-reading-game'
 type FakeStorageOptions = {
   settings?: Partial<GameSettings>
   best?: number | null
+  /** Personal best computed from the completed Rounds saved so far (and `best` as the floor). */
+  liveBest?: boolean
   seenHints?: string[]
   failWrites?: boolean
 }
@@ -58,7 +60,12 @@ function createFakeStorage(options: FakeStorageOptions = {}) {
     listAttempts: () => Promise.resolve([]),
     getPersonalBest: (key) => {
       bestQueries.push(key)
-      return Promise.resolve(options.best ?? null)
+      if (!options.liveBest) return Promise.resolve(options.best ?? null)
+      const scores = sessionSaves.flatMap((save) =>
+        save.completed && save.score !== null ? [save.score] : [],
+      )
+      const best = Math.max(options.best ?? 0, ...scores)
+      return Promise.resolve(scores.length > 0 || options.best != null ? best : null)
     },
     isPersisting: () => Promise.resolve(true),
     hasSeenHint: (name) => Promise.resolve(options.seenHints?.includes(name) ?? false),
@@ -581,7 +588,7 @@ describe('Name the note: ending', () => {
     expect(final?.endedAt).not.toBeNull()
     expect(screen.getByText((final?.score ?? 0).toLocaleString('en-US'))).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Back to setup' }))
+    await user.click(screen.getByRole('button', { name: 'Change settings' }))
     expect(screen.getByRole('button', { name: 'Start' })).toBeInTheDocument()
   })
 
@@ -689,5 +696,109 @@ describe('iPhone silent-switch hint', () => {
     jest.restoreAllMocks()
     await startGame()
     expect(screen.queryByText(/silent switch/)).not.toBeInTheDocument()
+  })
+})
+
+async function playRound(user: ReturnType<typeof userEvent.setup>, misses = 0) {
+  for (let i = 0; i < misses; i++) {
+    await user.click(answerButton(otherLetter(shownLetter())))
+    advance(1200)
+  }
+  for (let i = 0; i < 40; i++) {
+    if (screen.queryByRole('group', { name: 'Answers' }) === null) break
+    await user.click(answerButton(shownLetter()))
+    advance(600)
+  }
+  await flushWrites()
+}
+
+describe('Round end screen', () => {
+  it('shows the stats and the personal best badge for a first Round', async () => {
+    const { user } = await startGame({ settings: { sessionType: 'round' }, liveBest: true })
+    await playRound(user)
+
+    expect(screen.getByRole('heading', { name: 'Round complete' })).toHaveFocus()
+    expect(screen.getByText('20/20 (100%)')).toBeInTheDocument()
+    expect(screen.getByText('New personal best')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: /^Results staff/ })).toBeInTheDocument()
+  })
+
+  it('shows the previous best quietly, without the badge, when it was not beaten', async () => {
+    const { user } = await startGame({ settings: { sessionType: 'round' }, best: 999_999 })
+    await playRound(user)
+
+    expect(screen.getByRole('heading', { name: 'Round complete' })).toBeInTheDocument()
+    expect(screen.queryByText('New personal best')).not.toBeInTheDocument()
+    expect(screen.getByText('Personal best: 999,999')).toBeInTheDocument()
+  })
+
+  it('Play again starts a fresh Round with the same settings, audio already unlocked', async () => {
+    const { user, calls, sessionSaves } = await startGame({
+      settings: { sessionType: 'round', soundOn: false },
+      liveBest: true,
+    })
+    await playRound(user)
+    expect(calls.filter((call) => call === 'unlock')).toHaveLength(1)
+
+    await user.click(screen.getByRole('button', { name: 'Play again' }))
+    await flushWrites()
+
+    expect(screen.getByRole('group', { name: 'Answers' })).toBeInTheDocument()
+    expect(stat('Progress')).toBe('0/20')
+    expect(stat('Score')).toBe('0')
+    // Not unlocked again; mute state and samples carry over.
+    expect(calls.filter((call) => call === 'unlock')).toHaveLength(1)
+    expect(calls.slice(-2)).toEqual(['setMuted:true', 'loadSamples'])
+    expect(sessionSaves.at(-1)).toMatchObject({
+      mode: 'name',
+      sessionType: 'round',
+      completed: false,
+    })
+    expect(new Set(sessionSaves.map((save) => save.id)).size).toBe(2)
+  })
+
+  it('a second, better Round shows the badge; Change settings shows the updated best', async () => {
+    const { user } = await startGame({ settings: { sessionType: 'round' }, liveBest: true })
+    // First Round with two misses (lower score).
+    await playRound(user, 2)
+    expect(screen.getByText('New personal best')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Play again' }))
+    await flushWrites()
+    await playRound(user)
+    expect(screen.getByText('New personal best')).toBeInTheDocument()
+    const better = screen.getByText(/^[\d,]+$/, { selector: 'p' }).textContent
+
+    await user.click(screen.getByRole('button', { name: 'Play again' }))
+    await flushWrites()
+    await playRound(user, 3)
+    expect(screen.queryByText('New personal best')).not.toBeInTheDocument()
+    expect(screen.getByText(`Personal best: ${better}`)).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Change settings' }))
+    await flushWrites()
+    expect(screen.getByRole('button', { name: 'Start' })).toBeInTheDocument()
+    expect(await screen.findByText(`Personal best: ${better}`)).toBeInTheDocument()
+  })
+
+  it('is not shown after exiting a Round', async () => {
+    const { user } = await startGame({ settings: { sessionType: 'round' } })
+    await user.click(answerButton(shownLetter()))
+    advance(600)
+    await user.keyboard('{Escape}')
+    await flushWrites()
+
+    expect(screen.queryByRole('heading', { name: 'Round complete' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Start' })).toBeInTheDocument()
+  })
+
+  it('is not shown for Practice, which ends with its own summary', async () => {
+    const { user } = await startGame()
+    await user.click(answerButton(shownLetter()))
+    advance(600)
+    await user.click(screen.getByRole('button', { name: 'Exit' }))
+
+    expect(screen.getByRole('heading', { name: 'Practice summary' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Round complete' })).not.toBeInTheDocument()
   })
 })

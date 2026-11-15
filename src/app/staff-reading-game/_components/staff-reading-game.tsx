@@ -149,6 +149,18 @@ export function StaffReadingGame({
     session.start(settings)
   }
 
+  function handlePlayAgain() {
+    if (!settings) return
+    // Audio is already unlocked; carry the mute state and sample loading over.
+    safely(() => {
+      const audio = audioRef.current
+      if (!audio) return
+      audio.setMuted(!settings.soundOn)
+      void audio.loadSamples().catch(() => undefined)
+    })
+    session.start(settings)
+  }
+
   function handleToggleSound() {
     if (!settings) return
     const soundOn = !settings.soundOn
@@ -188,6 +200,7 @@ export function StaffReadingGame({
         <EndScreen
           state={session.state}
           personalBestBefore={session.personalBestBefore}
+          onPlayAgain={handlePlayAgain}
           onChangeSettings={session.exit}
         />
       </Page>

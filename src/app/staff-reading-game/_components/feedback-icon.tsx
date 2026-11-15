@@ -1,9 +1,15 @@
 type FeedbackIconProps = {
-  kind: 'correct' | 'wrong'
+  kind: 'correct' | 'wrong' | 'mixed'
   className?: string
 }
 
-/** Check (correct) or cross (wrong), drawn in the current text colour. Decorative. */
+const PATHS = {
+  correct: 'M3 8.5 L6.5 12 L13 4.5',
+  wrong: 'M4 4 L12 12 M12 4 L4 12',
+  mixed: 'M2 9.5 C4 3.5 7 3.5 8 8 C9 12.5 12 12.5 14 6.5',
+} as const
+
+/** Check (correct), cross (wrong) or tilde (mixed), drawn in the current text colour. Decorative. */
 export function FeedbackIcon({ kind, className }: FeedbackIconProps) {
   return (
     <svg
@@ -17,7 +23,7 @@ export function FeedbackIcon({ kind, className }: FeedbackIconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d={kind === 'correct' ? 'M3 8.5 L6.5 12 L13 4.5' : 'M4 4 L12 12 M12 4 L4 12'} />
+      <path d={PATHS[kind]} />
     </svg>
   )
 }
