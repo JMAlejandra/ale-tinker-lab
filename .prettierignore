@@ -19,3 +19,6 @@ drizzle
 
 # misc
 public
+
+# vendored agent skills
+.claude

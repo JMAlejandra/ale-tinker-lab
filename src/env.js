@@ -1,5 +1,5 @@
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
+import { createEnv } from '@t3-oss/env-nextjs'
+import { z } from 'zod'
 
 export const env = createEnv({
   /**
@@ -9,9 +9,7 @@ export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
     DATABASE_URL_UNPOOLED: z.string().url().optional(),
-    NODE_ENV: z
-      .enum(["development", "test", "production"])
-      .default("development"),
+    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   },
 
   /**
@@ -43,4 +41,4 @@ export const env = createEnv({
    * `SOME_VAR=''` will throw an error.
    */
   emptyStringAsUndefined: true,
-});
+})

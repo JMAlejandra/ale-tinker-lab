@@ -2,29 +2,29 @@
 export default {
   semi: false,
   singleQuote: true,
-  trailingComma: "all",
+  trailingComma: 'all',
   tabWidth: 2,
   printWidth: 100,
-  arrowParens: "always",
+  arrowParens: 'always',
   bracketSpacing: true,
   bracketSameLine: false,
   singleAttributePerLine: true,
-  proseWrap: "preserve",
+  proseWrap: 'preserve',
   useTabs: false,
-  endOfLine: "lf",
-  plugins: ["prettier-plugin-tailwindcss"],
+  endOfLine: 'lf',
+  plugins: ['prettier-plugin-tailwindcss'],
   overrides: [
     {
-      files: "docker-compose.yml",
+      files: 'docker-compose.yml',
       options: {
         singleQuote: false,
       },
     },
     {
-      files: "*.yml",
+      files: '*.yml',
       options: {
         singleQuote: false,
       },
     },
   ],
-};
+}
