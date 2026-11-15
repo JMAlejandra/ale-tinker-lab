@@ -55,3 +55,5 @@ export type {
   ProgressStorage,
   StorageLike,
 } from './staff-reading-game.storage'
+export { createAudioEngine } from './staff-reading-game.audio'
+export type { AudioContextLike, AudioEngine, AudioEngineOptions } from './staff-reading-game.audio'
