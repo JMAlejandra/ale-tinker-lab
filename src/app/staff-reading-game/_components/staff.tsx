@@ -205,8 +205,12 @@ export function Staff({
   // Locking drops the ghost, so unlocking does not bring back a stale one (and
   // its preview sound); it reappears on the next pointer move.
   if (disabled && hoverStep !== null) setHoverStep(null)
+  // Locking also ends a press or drag in progress: a finger held through the lock needs a fresh
+  // tap to place again.
   useEffect(() => {
-    if (disabled) mousePress.current = null
+    if (!disabled) return
+    mousePress.current = null
+    dragPointer.current = null
   }, [disabled])
   const value = interaction?.value ?? null
   const ghostStep = interaction && !disabled ? hoverStep : null

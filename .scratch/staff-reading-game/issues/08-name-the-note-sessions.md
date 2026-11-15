@@ -4,7 +4,7 @@
 
 **Blocked by:** 03, 05, 06, 07
 
-**Status:** ready-for-agent
+**Status:** done
 
 ## Acceptance criteria
 

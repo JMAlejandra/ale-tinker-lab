@@ -7,15 +7,18 @@ import {
   FEEDBACK_CORRECT_MS,
   FEEDBACK_WRONG_MS,
   ResponseTimer,
+  WRONG_NOTE_SOUND_DELAY_MS,
   advanceAction,
   answerAction,
   createId,
   createSession,
   exitAction,
+  isCanonicalNote,
   selectSessionTotals,
   sessionReducer,
   startAction,
   type AudioEngine,
+  type CanonicalNote,
   type GameSettings,
   type ProgressStorage,
   type Session,
@@ -52,6 +55,8 @@ export type GameSession = {
   start: (settings: GameSettings) => void
   /** Commits an answer to the current prompt. Ignored outside `prompting`. */
   commit: (input: CommitInput) => void
+  /** Place mode preview sound (D22): plays a note while placing. Ignored outside `prompting`. */
+  preview: (note: CanonicalNote) => void
   /** Escape / exit button during play; leaves the summary or end screen otherwise. */
   exit: () => void
   /** Resolves once every storage write queued so far has settled. */
@@ -245,7 +250,16 @@ function createController(deps: ControllerDeps): Controller {
     const prompt = next.current
     const attempt = next.attempts.at(-1)
     if (next.status !== 'feedback' || !prompt || !attempt) return
-    if (next.settings.mode === 'name') playSound((audio) => audio.play(prompt.targetNote))
+    if (next.settings.mode === 'name') {
+      playSound((audio) => audio.play(prompt.targetNote))
+    } else if (isCanonicalNote(answer)) {
+      // Place mode: the placed note, then the correct one after a miss.
+      const correctNote = next.lastResult?.isCorrect === false ? prompt.targetNote : null
+      playSound((audio) => {
+        audio.play(answer)
+        if (correctNote) audio.play(correctNote, { delayMs: WRONG_NOTE_SOUND_DELAY_MS })
+      })
+    }
     const session = record
     const answeredAt = new Date().toISOString()
     if (session) {
@@ -264,6 +278,10 @@ function createController(deps: ControllerDeps): Controller {
     if (mounted) scheduleAdvance()
   }
 
+  const preview: Controller['preview'] = (note) => {
+    if (state.status === 'prompting') playSound((audio) => audio.play(note))
+  }
+
   const exit: Controller['exit'] = () => {
     const wasPlaying = isPlaying(state)
     clearFeedback()
@@ -275,6 +293,7 @@ function createController(deps: ControllerDeps): Controller {
   return {
     start,
     commit,
+    preview,
     exit,
     whenSaved: () => writes,
     attach() {
@@ -300,8 +319,8 @@ function createController(deps: ControllerDeps): Controller {
 
 /**
  * Runs one game session at a time: the session reducer, response timing (paused while the page
- * is hidden), the automatic advance after feedback, the sound after each commit, and saving the
- * session and its attempts. Storage and audio failures never interrupt play.
+ * is hidden), the automatic advance after feedback, the sound after each commit and while placing,
+ * and saving the session and its attempts. Storage and audio failures never interrupt play.
  */
 export function useGameSession(options: UseGameSessionOptions): GameSession {
   const optionsRef = useRef(options)
@@ -334,6 +353,7 @@ export function useGameSession(options: UseGameSessionOptions): GameSession {
     personalBestBefore,
     start: controller.start,
     commit: controller.commit,
+    preview: controller.preview,
     exit: controller.exit,
     whenSaved: controller.whenSaved,
   }

@@ -18,7 +18,7 @@ import { SetupScreen } from './setup-screen'
 import { useGameSession } from './use-game-session'
 import { useSilentSwitchHint } from './use-silent-switch-hint'
 
-type Screen = 'setup' | 'game' | 'summary' | 'ended' | 'place-coming-soon'
+type Screen = 'setup' | 'game' | 'summary' | 'ended'
 
 type StaffReadingGameProps = {
   /** Injected in tests; defaults to browser storage created after mount. */
@@ -46,11 +46,8 @@ export function StaffReadingGame({
   const [settings, setSettings] = useState<GameSettings | null>(null)
   const [personalBest, setPersonalBest] = useState<number | null>(null)
   const [persisting, setPersisting] = useState(true)
-  // Until ticket 09 adds Place mode, starting it shows a notice instead of a session.
-  const [placeComingSoon, setPlaceComingSoon] = useState(false)
   // Once the player has left the setup screen, every screen change moves focus to its heading.
   const [hasStarted, setHasStarted] = useState(false)
-  const placeHeadingRef = useRef<HTMLHeadingElement>(null)
   const saveQueue = useRef<Promise<void>>(Promise.resolve())
   const audioRef = useRef<AudioEngine | null>(injectedAudio ?? null)
 
@@ -59,11 +56,7 @@ export function StaffReadingGame({
   const { whenSaved } = session
 
   const status = session.state.status
-  const screen: Screen = placeComingSoon
-    ? 'place-coming-soon'
-    : status === 'prompting' || status === 'feedback'
-      ? 'game'
-      : status
+  const screen: Screen = status === 'prompting' || status === 'feedback' ? 'game' : status
 
   // Browser storage is created after mount so server rendering never touches browser APIs.
   useEffect(() => {
@@ -114,10 +107,6 @@ export function StaffReadingGame({
     }
   }, [screen, storage, mode, clef, rangePreset, whenSaved])
 
-  useEffect(() => {
-    if (screen === 'place-coming-soon') placeHeadingRef.current?.focus()
-  }, [screen])
-
   function handleChange(next: GameSettings) {
     setSettings(next)
     if (!storage) return
@@ -132,10 +121,6 @@ export function StaffReadingGame({
   function handleStart() {
     if (!settings) return
     setHasStarted(true)
-    if (settings.mode === 'place') {
-      setPlaceComingSoon(true)
-      return
-    }
     // Inside the Start gesture: browsers only allow audio to start from one.
     safely(() => {
       audioRef.current ??= createAudioEngine()
@@ -176,6 +161,8 @@ export function StaffReadingGame({
         soundOn={settings.soundOn}
         onToggleSound={handleToggleSound}
         onAnswer={(letter: Letter) => session.commit({ answer: letter })}
+        onPlace={(note, viaConfirm) => session.commit({ answer: note, viaConfirm })}
+        onPreview={session.preview}
         onExit={session.exit}
         showSilentSwitchHint={hint.visible}
         onDismissSilentSwitchHint={hint.dismiss}
@@ -203,32 +190,6 @@ export function StaffReadingGame({
           onPlayAgain={handlePlayAgain}
           onChangeSettings={session.exit}
         />
-      </Page>
-    )
-  }
-
-  if (screen === 'place-coming-soon') {
-    return (
-      <Page>
-        <div className="flex flex-col gap-6">
-          <h1
-            ref={placeHeadingRef}
-            tabIndex={-1}
-            className="text-ink text-3xl font-extrabold tracking-tight focus:outline-none"
-          >
-            Place the note is coming next
-          </h1>
-          <p className="text-ink-muted">
-            For now, try Name the note: see a note on the staff and name it.
-          </p>
-          <button
-            type="button"
-            onClick={() => setPlaceComingSoon(false)}
-            className="bg-accent focus-visible:ring-accent min-h-12 touch-manipulation rounded-xl px-6 py-3 text-lg font-bold text-white hover:bg-indigo-800 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-          >
-            Back to setup
-          </button>
-        </div>
       </Page>
     )
   }

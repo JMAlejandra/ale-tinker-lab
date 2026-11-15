@@ -657,16 +657,6 @@ describe('Name the note: ending', () => {
   })
 })
 
-describe('Place the note before it exists', () => {
-  it('shows a notice with a way back and starts no session', async () => {
-    const { user, sessionSaves } = await startGame({ settings: { mode: 'place' } })
-    expect(screen.getByRole('heading', { name: 'Place the note is coming next' })).toHaveFocus()
-    expect(sessionSaves).toHaveLength(0)
-    await user.click(screen.getByRole('button', { name: 'Back to setup' }))
-    expect(screen.getByRole('radio', { name: /Place the note/ })).toBeChecked()
-  })
-})
-
 describe('iPhone silent-switch hint', () => {
   const IPHONE_UA =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1'

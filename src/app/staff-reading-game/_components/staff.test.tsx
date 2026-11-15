@@ -343,6 +343,28 @@ describe('Staff interaction', () => {
     expect(onCommit).not.toHaveBeenCalled()
   })
 
+  it('touch: a drag held through the lock does not move the notehead after it lifts', () => {
+    const onChange = jest.fn()
+    const { rerender } = render(<ControlledStaff onChange={onChange} />)
+    const staff = screen.getByRole('slider')
+    fireEvent.pointerDown(staff, { pointerType: 'touch', pointerId: 5, clientY: stepToY(3) })
+    expect(onChange).toHaveBeenCalledTimes(1)
+    rerender(
+      <ControlledStaff
+        onChange={onChange}
+        disabled
+      />,
+    )
+    rerender(<ControlledStaff onChange={onChange} />)
+    fireEvent.pointerMove(staff, { pointerType: 'touch', pointerId: 5, clientY: stepToY(6) })
+    expect(onChange).toHaveBeenCalledTimes(1)
+
+    // A fresh tap places again.
+    fireEvent.pointerUp(staff, { pointerType: 'touch', pointerId: 5, clientY: stepToY(6) })
+    fireEvent.pointerDown(staff, { pointerType: 'touch', pointerId: 6, clientY: stepToY(6) })
+    expect(onChange).toHaveBeenLastCalledWith(6, 'touch')
+  })
+
   it('locking clears the ghost; unlocking shows it again only on the next move', () => {
     const onStepChange = jest.fn()
     const { container, rerender } = render(<ControlledStaff onStepChange={onStepChange} />)

@@ -168,4 +168,25 @@ describe('useGameSession', () => {
     act(() => result.current.exit())
     expect(result.current.state.status).toBe('summary')
   })
+
+  it('plays the preview sound only while a prompt is waiting for an answer', () => {
+    const play = jest.fn()
+    const audio = {
+      unlock: jest.fn(),
+      loadSamples: () => Promise.resolve(),
+      play,
+      setMuted: jest.fn(),
+      dispose: jest.fn(),
+    }
+    const place: GameSettings = { ...DEFAULT_SETTINGS, mode: 'place', strictOctave: true }
+    const { result } = renderSession({ storage: null, rng: () => 0, getAudio: () => audio })
+
+    act(() => result.current.preview('G4'))
+    act(() => result.current.start(place))
+    act(() => result.current.preview('A4'))
+    act(() => result.current.commit({ answer: 'E4' }))
+    act(() => result.current.preview('B4'))
+
+    expect(play.mock.calls).toEqual([['A4'], ['E4']])
+  })
 })
