@@ -42,3 +42,16 @@ export type {
   SessionType,
   Settings,
 } from './staff-reading-game.types'
+export {
+  HINTS_STORAGE_KEY,
+  MAX_STORED_ATTEMPTS,
+  PROGRESS_STORAGE_KEY,
+  createBrowserProgressStorage,
+  createId,
+} from './staff-reading-game.storage'
+export type {
+  BrowserProgressStorageOptions,
+  PersonalBestKey,
+  ProgressStorage,
+  StorageLike,
+} from './staff-reading-game.storage'
