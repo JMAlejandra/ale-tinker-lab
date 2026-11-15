@@ -37,6 +37,13 @@ export default async function Home() {
                 Learn more about Create T3 App, the libraries it uses, and how to deploy it.
               </div>
             </Link>
+            <Link
+              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
+              href="/staff-reading-game"
+            >
+              <h3 className="text-2xl font-bold">Staff Reading Game →</h3>
+              <div className="text-lg">Practise reading notes on the staff.</div>
+            </Link>
           </div>
           <div className="flex flex-col items-center gap-2">
             <p className="text-2xl text-white">

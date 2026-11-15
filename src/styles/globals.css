@@ -1,6 +1,18 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* Staff Reading Game "sheet music" palette; reuse these tokens in later game screens. */
+@theme {
+  --color-paper: #faf6ee;
+  --color-card: #fffdf8;
+  --color-ink: #1c1917;
+  --color-ink-muted: #57534e;
+  --color-rule: #8a8478;
+  --color-accent: #4338ca;
+  --color-accent-soft: #eef0ff;
 }
