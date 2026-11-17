@@ -1,12 +1,12 @@
-import Link from "next/link";
+import Link from 'next/link'
 
-import { LatestPost } from "~/app/_components/post";
-import { api, HydrateClient } from "~/trpc/server";
+import { LatestPost } from '~/app/_components/post'
+import { api, HydrateClient } from '~/trpc/server'
 
 export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
+  const hello = await api.post.hello({ text: 'from tRPC' })
 
-  void api.post.getLatest.prefetch();
+  void api.post.getLatest.prefetch()
 
   return (
     <HydrateClient>
@@ -23,8 +23,8 @@ export default async function Home() {
             >
               <h3 className="text-2xl font-bold">First Steps →</h3>
               <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
+                Just the basics - Everything you need to know to set up your database and
+                authentication.
               </div>
             </Link>
             <Link
@@ -34,14 +34,20 @@ export default async function Home() {
             >
               <h3 className="text-2xl font-bold">Documentation →</h3>
               <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
+                Learn more about Create T3 App, the libraries it uses, and how to deploy it.
               </div>
+            </Link>
+            <Link
+              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
+              href="/staff-reading-game"
+            >
+              <h3 className="text-2xl font-bold">Staff Reading Game →</h3>
+              <div className="text-lg">Practise reading notes on the staff.</div>
             </Link>
           </div>
           <div className="flex flex-col items-center gap-2">
             <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
+              {hello ? hello.greeting : 'Loading tRPC query...'}
             </p>
           </div>
 
@@ -49,5 +55,5 @@ export default async function Home() {
         </div>
       </main>
     </HydrateClient>
-  );
+  )
 }
